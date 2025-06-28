@@ -63,3 +63,249 @@ plt.axis('off')
 
 plt.tight_layout()
 plt.show()
+
+#3 Write a program to perform the following point processing operations on the given input gray scale image
+and display the results. (a) s = r + 50 (b) s = r – 50 (c) s = r * 0.5 (d) s = r * 2
+
+
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image = cv2.imread(r'E:/1672990147279 - Copy.jpg', cv2.IMREAD_GRAYSCALE)
+
+if image is None:
+    print("Image not found.")
+    exit()
+
+add_50 = np.clip(image + 50, 0, 255)
+sub_50 = np.clip(image - 50, 0, 255)
+mul_0_5 = np.clip(image * 0.5, 0, 255).astype(np.uint8)
+mul_2 = np.clip(image * 2, 0, 255).astype(np.uint8)
+
+titles = ['Original', 's = r + 50', 's = r - 50', 's = r * 0.5', 's = r * 2']
+images = [image, add_50, sub_50, mul_0_5, mul_2]
+
+plt.figure(figsize=(12, 6))
+for i in range(5):
+    plt.subplot(2, 3, i+1)
+    plt.imshow(images[i], cmap='gray')
+    plt.title(titles[i])
+    plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+
+#4 Write a program to implement the basic piecewise linear transformation functions such as contrast stretching, 
+intensity level slicing and bit plane slicing on gray scale images and comment on the results obtained.
+
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image = cv2.imread(r'E:/1672990147279 - Copy.jpg', cv2.IMREAD_GRAYSCALE)
+if image is None:
+    print("Image not found.")
+    exit()
+
+def contrast_stretch(img, r1=70, r2=140, s1=0, s2=255):
+    output = np.zeros_like(img)
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r = img[i, j]
+            if r < r1:
+                output[i, j] = int((s1 / r1) * r)
+            elif r < r2:
+                output[i, j] = int(((s2 - s1) / (r2 - r1)) * (r - r1) + s1)
+            else:
+                output[i, j] = int(((255 - s2) / (255 - r2)) * (r - r2) + s2)
+    return output
+
+contrast_img = contrast_stretch(image)
+
+
+def intensity_slicing(img, low=100, high=150):
+    sliced = np.zeros_like(img)
+    sliced[(img >= low) & (img <= high)] = 255
+    return sliced
+
+sliced_img = intensity_slicing(image)
+
+
+def bit_plane_slicing(img):
+    bit_planes = []
+    for i in range(8):
+        plane = (img >> i) & 1
+        bit_planes.append(np.uint8(plane * 255))
+    return bit_planes
+
+bit_planes = bit_plane_slicing(image)
+
+
+plt.figure(figsize=(15, 10))
+
+# Original and contrast stretched
+plt.subplot(2, 3, 1)
+plt.imshow(image, cmap='gray')
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(2, 3, 2)
+plt.imshow(contrast_img, cmap='gray')
+plt.title('Contrast Stretching')
+plt.axis('off')
+
+plt.subplot(2, 3, 3)
+plt.imshow(sliced_img, cmap='gray')
+plt.title('Intensity Level Slicing')
+plt.axis('off')
+
+
+for i in range(3):
+    plt.subplot(2, 3, 4+i)
+    plt.imshow(bit_planes[7-i], cmap='gray')
+    plt.title(f'Bit Plane {7-i}')
+    plt.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+
+#5 Write a program to perform histogram equalization for the given gray scale image. Display the original image 
+and histogram equalized image along with their image histograms and comment on the results.
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+image = cv2.imread(r'E:/1672990147279 - Copy.jpg', cv2.IMREAD_GRAYSCALE)
+if image is None:
+    print("Image not found.")
+    exit()
+
+
+equalized_image = cv2.equalizeHist(image)
+
+def plot_histogram(img, title, subplot_index):
+    plt.subplot(2, 2, subplot_index)
+    plt.hist(img.ravel(), bins=256, range=(0, 256), color='blue', alpha=0.7)
+    plt.title(title)
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+
+
+plt.figure(figsize=(12, 8))
+
+
+plt.subplot(2, 2, 1)
+plt.imshow(image, cmap='gray')
+plt.title("Original Image")
+plt.axis('off')
+
+
+plot_histogram(image, "Original Histogram", 2)
+
+plt.subplot(2, 2, 3)
+plt.imshow(equalized_image, cmap='gray')
+plt.title("Equalized Image")
+plt.axis('off')
+
+plot_histogram(equalized_image, "Equalized Histogram", 4)
+
+plt.tight_layout()
+plt.show()
+
+
+#6 Write a program to implement histogram matching for the given images, plot the results obtained and record 
+your observations on the result.
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
+from skimage.exposure import match_histograms
+
+source = cv2.imread(r'E:/1672990147279 - Copy.jpg', cv2.IMREAD_GRAYSCALE)
+reference = cv2.imread(r'E:/target.jpg', cv2.IMREAD_GRAYSCALE) 
+
+if source is None or reference is None:
+    print("Error: Source or reference image not found.")
+    sys.exit()
+
+
+matched = match_histograms(source, reference, channel_axis=None)
+
+def plot_hist(img, title, subplot_index):
+    plt.subplot(3, 3, subplot_index)
+    plt.hist(img.ravel(), bins=256, range=(0, 256), color='gray')
+    plt.title(title)
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+
+
+plt.figure(figsize=(12, 10))
+
+plt.subplot(3, 3, 1)
+plt.imshow(source, cmap='gray')
+plt.title('Source Image')
+plt.axis('off')
+
+plt.subplot(3, 3, 2)
+plt.imshow(reference, cmap='gray')
+plt.title('Reference Image')
+plt.axis('off')
+
+plt.subplot(3, 3, 3)
+plt.imshow(matched, cmap='gray')
+plt.title('Matched Image')
+plt.axis('off')
+
+plot_hist(source, "Source Histogram", 4)
+plot_hist(reference, "Reference Histogram", 5)
+plot_hist(matched, "Matched Histogram", 6)
+
+plt.tight_layout()
+plt.show()
+
+#7 Write a program to convert the given image from RGB color space to HSV color space and vice versa. Record 
+your observations and comment on the results.
+
+import cv2
+import matplotlib.pyplot as plt
+
+bgr_image = cv2.imread(r'E:/1672990147279 - Copy.jpg')
+if bgr_image is None:
+    print("Image not found.")
+    exit()
+
+rgb_image=cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
+
+
+hsv_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2HSV)
+
+
+bgr_reconverted = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+rgb_reconverted = cv2.cvtColor(bgr_reconverted, cv2.COLOR_BGR2RGB)
+
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 3, 1)
+plt.imshow(rgb_image)
+plt.title("Original RGB")
+plt.axis('off')
+
+plt.subplot(1, 3, 2)
+plt.imshow(hsv_image)
+plt.title("HSV Image (as RGB)")
+plt.axis('off')
+
+plt.subplot(1, 3, 3)
+plt.imshow(rgb_reconverted)
+plt.title("Back to RGB from HSV")
+plt.axis('off')
+
+plt.tight_layout()
+plt.show()
