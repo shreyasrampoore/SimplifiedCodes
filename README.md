@@ -2,8 +2,6 @@
 Write a program to implement linear (Negative Transformation) and non-linear (Logarithmic and Power Law 
 transformation) on gray scale images and comment on the results obtained.
 
-
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
