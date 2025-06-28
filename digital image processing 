@@ -9,15 +9,15 @@ import matplotlib.pyplot as plt
 #Load grayscale image
 image = cv2.imread('input_image.jpg', cv2.IMREAD_GRAYSCALE)
 
-# 1. Linear Negative Transformation: s = 255 - r
+#Linear Negative Transformation: s = 255 - r
 negative = 255 - image
 
-# 2. Logarithmic Transformation: s = c * log(1 + r)
+#Logarithmic Transformation: s = c * log(1 + r)
 c = 255 / np.log(1 + np.max(image))
 log_transformed = c * np.log(1 + image.astype(np.float32))
 log_transformed = np.array(log_transformed, dtype=np.uint8)
 
-# 3. Power Law (Gamma) Transformation: s = c * r^gamma
+# Power Law (Gamma) Transformation: s = c * r^gamma
 gamma = 0.5
 power_transformed = np.power(image / 255.0, gamma)
 power_transformed = np.uint8(255 * power_transformed)
