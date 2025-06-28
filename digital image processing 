@@ -5,23 +5,18 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Load grayscale image
 image = cv2.imread('input_image.jpg', cv2.IMREAD_GRAYSCALE)
 
-#Linear Negative Transformation:
 negative = 255 - image
-
-#Logarithmic Transformation:
 c = 255 / np.log(1 + np.max(image))
+
 log_transformed = c * np.log(1 + image.astype(np.float32))
 log_transformed = np.array(log_transformed, dtype=np.uint8)
 
-# Power Law (Gamma) Transformation:
 gamma = 0.5
 power_transformed = np.power(image / 255.0, gamma)
 power_transformed = np.uint8(255 * power_transformed)
 
-# Display Results
 titles = ['Original', 'Negative', 'Logarithmic', 'Power Law (γ=0.5)']
 images = [image, negative, log_transformed, power_transformed]
 
@@ -41,16 +36,12 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load the color image
 image = cv2.imread(r'E:/1672990147279 - Copy.jpg')
 
-# Check if image loaded
 if image is None:
     print("Image not found. Please check the path.")
     exit()
 
-# Manual Negative Transformation without pre-defined functions
-# Each pixel is transformed: s = 255 - r
 rows, cols, channels = image.shape
 negative_image = np.zeros_like(image)
 
@@ -59,7 +50,6 @@ for i in range(rows):
         for c in range(channels):
             negative_image[i, j, c] = 255 - image[i, j, c]
 
-# Display using matplotlib (in RGB format)
 plt.figure(figsize=(10, 5))
 plt.subplot(1, 2, 1)
 plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
